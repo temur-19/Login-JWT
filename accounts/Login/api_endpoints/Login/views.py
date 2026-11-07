@@ -1,3 +1,5 @@
+import email
+
 from django.http import request
 from accounts.models import User
 from rest_framework import generics
@@ -8,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from .serializers import LoginSerializer
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 
@@ -33,6 +35,17 @@ def login(request):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
         'user': {
-            'username': user.username
+            'username': user.username,
+            'email': user.email
         }
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'email': user.email
     }, status=status.HTTP_200_OK)
